@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>100</groupId>
+    <artifactId>200</artifactId>
+    <version>1</version>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>app</module>
+        <module>delivery</module>
+        <module>launcher</module>
+    </modules>
+
+    <properties>
+        <java.version>11</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <botrino.version>1.0.0-M3</botrino.version>
+        <delivery.name>${project.parent.artifactId}-${project.version}-${os.name}-${os.arch}</delivery.name>
+        <delivery.directory>${project.build.directory}/${delivery.name}</delivery.directory>
+        <app.build.directory>${project.basedir}/../app/target</app.build.directory>
+    </properties>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.8.1</version>
+                    <configuration>
+                        <release>${java.version}</release>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-install-plugin</artifactId>
+                    <version>3.0.0-M1</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-deploy-plugin</artifactId>
+                    <version>3.0.0-M1</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-jlink-plugin</artifactId>
+                    <version>3.0.0</version>
+                    <extensions>true</extensions>
+                    <configuration>
+                        <launcher>${project.parent.artifactId}=100.launcher/100.Launcher</launcher>
+                        <addModules>
+                            <addModule>java.logging</addModule>
+                            <addModule>jdk.unsupported</addModule>
+                            <addModule>java.xml</addModule>
+                            <addModule>java.naming</addModule>
+                            <addModule>java.desktop</addModule>
+                            <addModule>jdk.crypto.ec</addModule>
+                        </addModules>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>3.2.0</version>
+                    <executions>
+                        <execution>
+                            <id>copy-resources</id>
+                            <phase>validate</phase>
+                            <goals>
+                                <goal>copy-resources</goal>
+                            </goals>
+                            <configuration>
+                                <outputDirectory>${project.build.directory}/resources</outputDirectory>
+                                <propertiesEncoding>ISO-8859-1</propertiesEncoding>
+                                <resources>
+                                    <resource>
+                                        <directory>src/main/external-resources</directory>
+                                        <filtering>true</filtering>
+                                    </resource>
+                                </resources>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>3.1.2</version>
+                    <executions>
+                        <execution>
+                            <id>copy-dependencies</id>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>copy-dependencies</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-antrun-plugin</artifactId>
+                    <version>3.0.0</version>
+                    <executions>
+                        <execution>
+                            <id>antrun-archive</id>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>run</goal>
+                            </goals>
+                            <configuration>
+                                <target>
+                                    <delete file="${project.build.directory}/${project.build.finalName}.zip" />
+                                    <move file="${project.build.directory}/maven-jlink" tofile="${delivery.directory}" force="true" />
+                                    <copy todir="${delivery.directory}/modules">
+                                        <fileset dir="${app.build.directory}/dependency" />
+                                        <fileset file="${app.build.directory}/*.jar" />
+                                    </copy>
+                                    <copy todir="${delivery.directory}">
+                                        <fileset dir="${app.build.directory}/resources" />
+                                    </copy>
+                                    <zip basedir="${delivery.directory}/.." includes="${delivery.name}/**/*" destfile="${delivery.directory}.zip" />
+                                </target>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.alex1304.botrino</groupId>
+                <artifactId>botrino-api</artifactId>
+                <version>${botrino.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alex1304.botrino</groupId>
+                <artifactId>botrino-command</artifactId>
+                <version>${botrino.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>1.2.3</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+</project>

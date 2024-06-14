@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Main" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="100.Main" />
+    <module name="200-app" />
+    <option name="VM_PARAMETERS" value="--add-modules=ALL-MODULE-PATH -cp ." />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
